@@ -14,10 +14,10 @@ from websocket import BinanceWebSocket
 from signal_analyzer import SignalAnalyzer
 from ai_model import AIPredictor
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)  # Исправлено: __name__
 
 class TradingCore:
-    def init(self, telegram_bot, database):
+    def __init__(self, telegram_bot, database):  # Исправлено: __init__
         self.telegram = telegram_bot
         self.database = database
         
@@ -121,7 +121,7 @@ class TradingCore:
         try:
             logger.info("✅ Проверка инициализации...")
 
-# Проверка WebSocket
+            # Проверка WebSocket
             if not self.websocket:
                 logger.error("❌ WebSocket не инициализирован")
                 return False
@@ -227,8 +227,7 @@ class TradingCore:
                     logger.info("🤖 AI модель переобучена и сохранена")
                     
                 except Exception as e:
-
-logger.error(f"Ошибка переобучения AI: {e}")
+                    logger.error(f"Ошибка переобучения AI: {e}")  # Исправлено: правильные скобки
                     await asyncio.sleep(300)  # 5 минут пауза при ошибке
                     
         except Exception as e:
@@ -424,8 +423,7 @@ logger.error(f"Ошибка переобучения AI: {e}")
                 'success_rate': (self.successful_analysis_cycles / self.total_analysis_cycles * 100) if self.total_analysis_cycles > 0 else 0,
                 'total_signals_generated': self.total_signals_generated,
                 'pairs_count': len(self.pairs),
-
-'timeframes_count': len(self.timeframes),
+                'timeframes_count': len(self.timeframes),
                 'websocket_status': self.websocket.get_connection_status() if self.websocket else {},
                 'ai_model_performance': self.ai_predictor.get_model_performance() if self.ai_predictor else {}
             }
