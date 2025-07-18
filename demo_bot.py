@@ -22,10 +22,10 @@ logging.basicConfig(
         logging.StreamHandler()
     ]
 )
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 class DemoTradingBot:
-    def init(self):
+    def __init__(self):
         self.telegram = TelegramBotHandler(BOT_TOKEN, CHAT_ID)
         self.is_running = False
         self.signals_sent = 0
@@ -115,8 +115,7 @@ class DemoTradingBot:
             hold_duration = hold_durations.get(timeframe, 60)
             
             # Реалистичные значения индикаторов
-
-vwap_gradient = random.uniform(0.001, 0.005)
+            vwap_gradient = random.uniform(0.001, 0.005)
             volume_tsunami = random.uniform(2.5, 5.0)
             neural_macd = random.uniform(0.05, 0.25)
             quantum_rsi = random.uniform(35, 65)
@@ -220,5 +219,5 @@ async def main():
     finally:
         await bot.shutdown()
 
-if name == "main":
+if __name__ == "__main__":
     asyncio.run(main())
