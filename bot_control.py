@@ -12,10 +12,10 @@ import sys
 
 from globals import STRATEGY_CONFIG, SAFETY_LIMITS, performance_stats, trading_active
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 class BotController:
-    def init(self, trading_core, telegram_bot):
+    def __init__(self, trading_core, telegram_bot):
         self.core = trading_core
         self.telegram = telegram_bot
         self.is_active = False
@@ -115,8 +115,7 @@ class BotController:
     async def _check_system_readiness(self) -> bool:
         """Проверка готовности всех компонентов системы"""
         try:
-
-logger.info("🔍 Проверка готовности системы...")
+            logger.info("🔍 Проверка готовности системы...")
             
             # Проверка торгового ядра
             if not self.core:
@@ -210,8 +209,7 @@ logger.info("🔍 Проверка готовности системы...")
                     
                 finally:
                     # Пауза между циклами
-
-await self._wait_next_cycle(cycle_start)
+                    await self._wait_next_cycle(cycle_start)
                     
         except Exception as e:
             logger.error(f"Критическая ошибка в основном цикле: {e}")
@@ -301,7 +299,7 @@ await self._wait_next_cycle(cycle_start)
                 logger.warning(f"⚠️ Превышен часовой лимит сигналов: {self.signals_sent_hour}")
                 return False
 
-# Проверка дневного лимита
+            # Проверка дневного лимита
             if self.signals_sent_today >= SAFETY_LIMITS['max_daily_signals']:
                 logger.warning(f"⚠️ Превышен дневной лимит сигналов: {self.signals_sent_today}")
                 return False
@@ -403,8 +401,7 @@ await self._wait_next_cycle(cycle_start)
         """Получение статуса контроллера"""
         try:
             uptime = datetime.now() - self.start_time if self.start_time else timedelta(0)
-
-return {
+            return {
                 'is_active': self.is_active,
                 'emergency_stop': self.emergency_stop,
                 'uptime': str(uptime).split('.')[0],
