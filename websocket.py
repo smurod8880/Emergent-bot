@@ -10,15 +10,15 @@ import websockets
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
-import aiohttp
+import aiohttp  # Исправлено: правильное написание
 from urllib.parse import urlencode
 
 from globals import BINANCE_WS_URL, TRADING_PAIRS, TIMEFRAMES, SAFETY_LIMITS
 
-logger = logging.getLogger(__name__)  # Исправлено: __name__
+logger = logging.getLogger(__name__)
 
 class BinanceWebSocket:
-    def __init__(self):  # Исправлено: __init__
+    def __init__(self):
         self.ws_url = BINANCE_WS_URL
         self.pairs = TRADING_PAIRS
         self.timeframes = TIMEFRAMES
@@ -112,8 +112,8 @@ class BinanceWebSocket:
                         
                         # Генерация OHLC данных
                         open_price = price
-                        high_price = price * (1 + abs(random.uniform(0, 0.02)))  # ИСПРАВЛЕНО: убрана лишняя скобка
-                        low_price = price * (1 - abs(random.uniform(0, 0.02)))
+                        high_price = price * (1 + abs(random.uniform(0, 0.02))
+                        low_price = price * (1 - abs(random.uniform(0, 0.02))
                         close_price = price * (1 + random.uniform(-0.01, 0.01))
                         volume = random.uniform(1000, 10000)
                         
@@ -238,7 +238,6 @@ class BinanceWebSocket:
             self.is_running = False
             
     async def _simulate_data_updates(self):
-        """Симуляция обновления данных в реальном времени"""
         try:
             import random
             
