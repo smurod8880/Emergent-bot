@@ -10,7 +10,7 @@ import websockets
 import pandas as pd
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
-import aiohttp  # Исправлено: правильное написание
+import aiohttp
 from urllib.parse import urlencode
 
 from globals import BINANCE_WS_URL, TRADING_PAIRS, TIMEFRAMES, SAFETY_LIMITS
@@ -74,7 +74,6 @@ class BinanceWebSocket:
         try:
             import random
             import numpy as np
-            from datetime import datetime, timedelta
             
             for pair in self.pairs:
                 base_price = {
@@ -112,8 +111,8 @@ class BinanceWebSocket:
                         
                         # Генерация OHLC данных
                         open_price = price
-                        high_price = price * (1 + abs(random.uniform(0, 0.02))
-                        low_price = price * (1 - abs(random.uniform(0, 0.02))
+                        high_price = price * (1 + abs(random.uniform(0, 0.02)))
+                        low_price = price * (1 - abs(random.uniform(0, 0.02)))
                         close_price = price * (1 + random.uniform(-0.01, 0.01))
                         volume = random.uniform(1000, 10000)
                         
@@ -144,7 +143,7 @@ class BinanceWebSocket:
             params = {
                 'symbol': pair,
                 'interval': timeframe,
-                'limit': 500  # Максимум 500 свечей
+                'limit': 500
             }
             
             url = f"{base_url}?{urlencode(params)}"
@@ -153,7 +152,6 @@ class BinanceWebSocket:
                 if response.status == 200:
                     data = await response.json()
                     
-                    # Преобразование в DataFrame
                     df_data = []
                     for candle in data:
                         df_data.append({
@@ -187,36 +185,6 @@ class BinanceWebSocket:
             
         except Exception as e:
             logger.error(f"Ошибка создания WebSocket соединений: {e}")
-            raise
-            
-    async def _create_single_connection(self, ws_url: str):
-        """Создание одного WebSocket соединения"""
-        try:
-            connection = await websockets.connect(ws_url)
-            self.connections['main'] = connection
-            
-            logger.info(f"🔗 WebSocket соединение создано: {ws_url}")
-            
-        except Exception as e:
-            logger.error(f"Ошибка создания WebSocket соединения: {e}")
-            raise
-            
-    async def _create_multiple_connections(self, streams: List[str]):
-        """Создание множественных WebSocket соединений"""
-        try:
-            # Разделение потоков на группы
-            chunk_size = 100
-            stream_chunks = [streams[i:i + chunk_size] for i in range(0, len(streams), chunk_size)]
-            
-            for i, chunk in enumerate(stream_chunks):
-                ws_url = f"wss://stream.binance.com:9443/ws/{'/'.join(chunk)}"
-                connection = await websockets.connect(ws_url)
-                self.connections[f'connection_{i}'] = connection
-                
-                logger.info(f"🔗 WebSocket соединение {i+1} создано: {len(chunk)} потоков")
-                
-        except Exception as e:
-            logger.error(f"Ошибка создания множественных соединений: {e}")
             raise
             
     async def start_data_stream(self):
@@ -265,133 +233,11 @@ class BinanceWebSocket:
                                 logger.debug(f"📊 Симуляция обновления: {pair} {timeframe} - {new_close:.4f}")
                 
                 # Пауза между обновлениями
-                await asyncio.sleep(1)  # Обновление каждую секунду
+                await asyncio.sleep(1)
                 
         except Exception as e:
             logger.error(f"Ошибка симуляции обновления данных: {e}")
             self.is_running = False
-            
-    async def _handle_connection(self, conn_name: str, connection):
-        """Обработка WebSocket соединения"""
-        try:
-            logger.info(f"🔄 Обработка соединения: {conn_name}")
-            
-            async for message in connection:
-                if not self.is_running:
-                    break
-                    
-                try:
-                    data = json.loads(message)
-                    await self._process_message(data)
-                    
-                except json.JSONDecodeError:
-                    logger.error(f"Ошибка декодирования JSON: {message[:100]}...")
-                    continue
-                    
-        except websockets.exceptions.ConnectionClosed:
-            logger.warning(f"WebSocket соединение {conn_name} закрыто")
-            await self._reconnect_connection(conn_name)
-            
-        except Exception as e:
-            logger.error(f"Ошибка обработки соединения {conn_name}: {e}")
-            await self._reconnect_connection(conn_name)
-            
-    async def _process_message(self, data: Dict[str, Any]):
-        """Обработка сообщения от WebSocket"""
-        try:
-            # Проверка типа сообщения
-            if 'stream' in data and 'data' in data:
-                stream = data['stream']
-                kline_data = data['data']
-                
-                # Парсинг названия потока
-                if '@kline_' in stream:
-                    parts = stream.split('@kline_')
-                    if len(parts) == 2:
-                        pair = parts[0].upper()
-                        timeframe = parts[1]
-                        
-                        # Обработка данных свечи
-                        await self._update_candle_data(pair, timeframe, kline_data)
-                        
-        except Exception as e:
-            logger.error(f"Ошибка обработки сообщения: {e}")
-            
-    async def _update_candle_data(self, pair: str, timeframe: str, kline_data: Dict[str, Any]):
-        """Обновление данных свечи"""
-        try:
-            if pair not in self.market_data or timeframe not in self.market_data[pair]:
-                return
-                
-            # Извлечение данных свечи
-            k = kline_data.get('k', {})
-            
-            new_candle = {
-                'timestamp': pd.to_datetime(k.get('t', 0), unit='ms'),
-                'open': float(k.get('o', 0)),
-                'high': float(k.get('h', 0)),
-                'low': float(k.get('l', 0)),
-                'close': float(k.get('c', 0)),
-                'volume': float(k.get('v', 0))
-            }
-            
-            # Обновление DataFrame
-            df = self.market_data[pair][timeframe]
-            
-            # Проверка, является ли свеча закрытой
-            is_closed = k.get('x', False)
-            
-            if is_closed:
-                # Добавление новой свечи
-                df = pd.concat([df, pd.DataFrame([new_candle])], ignore_index=True)
-                
-                # Ограничение размера DataFrame
-                if len(df) > 1000:
-                    df = df.tail(1000)
-                    
-                self.market_data[pair][timeframe] = df
-                
-                logger.debug(f"📊 Свеча обновлена: {pair} {timeframe} - {new_candle['close']}")
-                
-            else:
-                # Обновление текущей свечи
-                if len(df) > 0:
-                    df.iloc[-1] = new_candle
-                    
-        except Exception as e:
-            logger.error(f"Ошибка обновления данных свечи: {e}")
-            
-    async def _reconnect_connection(self, conn_name: str):
-        """Переподключение WebSocket соединения"""
-        try:
-            logger.info(f"🔄 Переподключение: {conn_name}")
-            
-            # Ожидание перед переподключением
-            await asyncio.sleep(SAFETY_LIMITS['reconnect_delay'])
-            
-            # Попытка переподключения
-            for attempt in range(SAFETY_LIMITS['reconnect_attempts']):
-                try:
-                    # Закрытие старого соединения
-                    if conn_name in self.connections:
-                        await self.connections[conn_name].close()
-                        del self.connections[conn_name]
-                        
-                    # Создание нового соединения
-                    await self._create_websocket_connections()
-                    
-                    logger.info(f"✅ Переподключение успешно: {conn_name}")
-                    return
-                    
-                except Exception as e:
-                    logger.error(f"Попытка переподключения {attempt + 1} неудачна: {e}")
-                    if attempt < SAFETY_LIMITS['reconnect_attempts'] - 1:
-                        await asyncio.sleep(SAFETY_LIMITS['reconnect_delay'] * (attempt + 1))
-                        
-            logger.error(f"❌ Не удалось переподключиться: {conn_name}")
-            
-        except Exception as e:
-            logger.error(f"Ошибка переподключения: {e}")
             
     def get_market_data(self) -> Dict[str, Dict[str, pd.DataFrame]]:
         """Получение рыночных данных"""
@@ -431,8 +277,9 @@ class BinanceWebSocket:
             # Закрытие всех соединений
             for conn_name, connection in self.connections.items():
                 try:
-                    await connection.close()
-                    logger.info(f"✅ Соединение {conn_name} закрыто")
+                    if hasattr(connection, "close") and callable(connection.close):
+                        await connection.close()
+                        logger.info(f"✅ Соединение {conn_name} закрыто")
                 except Exception as e:
                     logger.error(f"Ошибка закрытия соединения {conn_name}: {e}")
                     
