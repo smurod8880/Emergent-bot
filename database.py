@@ -12,10 +12,10 @@ import json
 
 from globals import DB_PATH, DATABASE_CONFIG
 
-logger = logging.getLogger(__name__)  # Исправлено: __name__
+logger = logging.getLogger(__name__)
 
 class Database:
-    def __init__(self):  # Исправлено: __init__
+    def __init__(self):
         self.db_path = DB_PATH
         self.config = DATABASE_CONFIG
         self.connection = None
@@ -111,7 +111,7 @@ class Database:
             """)
             
             self.connection.commit()
-        except Exception as e:  # ИСПРАВЛЕНО: убрана пустая строка перед except
+        except Exception as e:
             logger.error(f"Ошибка создания таблиц: {e}")
             raise
             
