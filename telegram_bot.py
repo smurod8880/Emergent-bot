@@ -15,10 +15,10 @@ from telegram.constants import ParseMode
 
 from globals import BOT_TOKEN, CHAT_ID, MESSAGE_FORMATS
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 class TelegramBotHandler:
-    def init(self, token: str, chat_id: int):
+    def __init__(self, token: str, chat_id: int):
         self.token = token
         self.chat_id = chat_id
         self.bot = None
@@ -114,8 +114,7 @@ class TelegramBotHandler:
     async def send_daily_stats(self, stats: Dict[str, Any]) -> bool:
         """Отправка дневной статистики"""
         try:
-
-# Форматирование лучших пар
+            # Форматирование лучших пар
             best_pairs_text = ""
             for pair in stats.get('best_pairs', []):
                 best_pairs_text += f"• {pair['pair']}: {pair['accuracy']:.1f}% ({pair['total_signals']} сигналов)\n"
@@ -169,133 +168,6 @@ class TelegramBotHandler:
         except Exception as e:
             logger.error(f"Ошибка отправки статуса: {e}")
             return False
-            
-    async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Обработка команды /start"""
-        try:
-            from bot_control import BotController
-            
-            # Получение контроллера из globals
-            import globals
-            if hasattr(globals, 'bot_controller'):
-                controller = globals.bot_controller
-                await controller.start_trading()
-                
-                await update.message.reply_text(
-
-"🚀 Торговый бот запущен!**\n\n"
-                    "Анализ рынка начат. Ожидайте сигналы...",
-                    parse_mode=ParseMode.MARKDOWN
-                )
-            else:
-                await update.message.reply_text(
-                    "❌ Контроллер бота не найден. Попробуйте позже."
-                )
-                
-        except Exception as e:
-            logger.error(f"Ошибка команды /start: {e}")
-            await update.message.reply_text(
-                "❌ Ошибка запуска бота. Проверьте логи."
-            )
-            
-    async def stop_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Обработка команды /stop"""
-        try:
-            from bot_control import BotController
-            
-            # Получение контроллера из globals
-            import globals
-            if hasattr(globals, 'bot_controller'):
-                controller = globals.bot_controller
-                await controller.stop_trading()
-                
-                await update.message.reply_text(
-                    "🛑 **Торговый бот остановлен!**\n\n"
-                    "Анализ рынка приостановлен.",
-                    parse_mode=ParseMode.MARKDOWN
-                )
-            else:
-                await update.message.reply_text(
-                    "❌ Контроллер бота не найден."
-                )
-                
-        except Exception as e:
-            logger.error(f"Ошибка команды /stop: {e}")
-            await update.message.reply_text(
-                "❌ Ошибка остановки бота. Проверьте логи."
-            )
-            
-    async def status_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Обработка команды /status"""
-        try:
-            # Получение статуса системы
-            import globals
-            
-            status_data = {
-                'uptime': 'N/A',
-                'pairs_count': len(globals.TRADING_PAIRS),
-                'timeframes_count': len(globals.TIMEFRAMES),
-                'current_accuracy': globals.performance_stats.get('accuracy', 0),
-                'signals_per_hour': globals.performance_stats.get('hourly_signals', 0)
-            }
-            
-            await self.send_status(status_data)
-            
-        except Exception as e:
-            logger.error(f"Ошибка команды /status: {e}")
-            await update.message.reply_text(
-                "❌ Ошибка получения статуса. Проверьте логи."
-            )
-            
-    async def stats_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Обработка команды /stats"""
-        try:
-            # Получение статистики из базы данных
-            import globals
-            
-            stats = {
-                'total_signals': globals.performance_stats.get('total_signals', 0),
-                'successful_signals': globals.performance_stats.get('successful_signals', 0),
-                'accuracy': globals.performance_stats.get('accuracy', 0),
-                'avg_profit': 0.0,
-                'best_pairs': []
-            }
-            
-            await self.send_daily_stats(stats)
-            
-        except Exception as e:
-            logger.error(f"Ошибка команды /stats: {e}")
-            await update.message.reply_text(
-                "❌ Ошибка получения статистики. Проверьте логи."
-            )
-            
-    async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        """Обработка команды /help"""
-        try:
-            help_text = """
-🤖 **Команды торгового бота:
-
-/start - Запуск анализа и торговли
-/stop - Остановка торговли
-/status - Текущий статус бота
-/stats - Статистика за день
-/help - Это сообщение
-
-📊 Стратегия: Quantum Precision V2
-🎯 Цель: 85%+ точность
-📈 Сигналы: 30-35 в день
-⏰ Обновление: каждые 10 секунд
-
-🔧 Поддержка: Automatic Trading System
-            """
-            
-            await update.message.reply_text(help_text, parse_mode=ParseMode.MARKDOWN)
-            
-        except Exception as e:
-            logger.error(f"Ошибка команды /help: {e}")
-            await update.message.reply_text(
-                "❌ Ошибка отображения помощи."
-            )
             
     async def run(self):
         """Запуск Telegram бота"""
