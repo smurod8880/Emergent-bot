@@ -12,10 +12,10 @@ import json
 
 from globals import DB_PATH, DATABASE_CONFIG
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)  # Исправлено: __name__
 
 class Database:
-    def init(self):
+    def __init__(self):  # Исправлено: __init__
         self.db_path = DB_PATH
         self.config = DATABASE_CONFIG
         self.connection = None
@@ -111,8 +111,7 @@ class Database:
             """)
             
             self.connection.commit()
-
-except Exception as e:
+        except Exception as e:  # ИСПРАВЛЕНО: убрана пустая строка перед except
             logger.error(f"Ошибка создания таблиц: {e}")
             raise
             
@@ -209,8 +208,7 @@ except Exception as e:
                         SUM(CASE WHEN result = 'failed' THEN 1 ELSE 0 END) as failed_signals,
                         AVG(CASE WHEN result = 'success' THEN profit ELSE 0 END) as avg_profit,
                         AVG(accuracy) as avg_accuracy
-
-FROM {self.config['signals_table']}
+                    FROM {self.config['signals_table']}
                     WHERE DATE(created_at) = ?
                 """, (date,))
                 
@@ -309,8 +307,7 @@ FROM {self.config['signals_table']}
                         'timeframe': row['timeframe'],
                         'direction': row['direction'],
                         'accuracy': row['accuracy'],
-
-'entry_time': row['entry_time'],
+                        'entry_time': row['entry_time'],
                         'hold_duration': row['hold_duration'],
                         'result': row['result'],
                         'profit': row['profit'],
