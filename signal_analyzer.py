@@ -14,10 +14,10 @@ from globals import STRATEGY_CONFIG, INDICATOR_WEIGHTS, TRADING_PAIRS, TIMEFRAME
 from indicators import TechnicalIndicators
 from ai_model import AIPredictor
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 class SignalAnalyzer:
-    def init(self, telegram_bot, database):
+    def __init__(self, telegram_bot, database):
         self.telegram = telegram_bot
         self.database = database
         self.indicators = TechnicalIndicators()
@@ -102,8 +102,7 @@ class SignalAnalyzer:
             level3_result = await self._level3_ai_prediction(pair, timeframe, data, indicators)
             
             # Для демонстрации - если хотя бы 2 уровня подтверждают сигнал
-
-valid_levels = sum([level1_result['valid'], level2_result['valid'], level3_result['valid']])
+            valid_levels = sum([level1_result['valid'], level2_result['valid'], level3_result['valid']])
             
             if valid_levels < 2:
                 return {}
@@ -192,8 +191,7 @@ valid_levels = sum([level1_result['valid'], level2_result['valid'], level3_resul
         """Уровень 2: Конвергенция индикаторов"""
         try:
             # Условие 1: MACD histogram > 0
-
-macd_condition = indicators.get('macd_histogram', 0) > 0
+            macd_condition = indicators.get('macd_histogram', 0) > 0
             
             # Условие 2: VWAP gradient > 0.002
             vwap_condition = indicators.get('vwap_gradient', 0) > self.config['vwap_gradient_threshold']
@@ -288,8 +286,7 @@ macd_condition = indicators.get('macd_histogram', 0) > 0
                 'rsi', 'macd', 'macd_histogram', 'bb_position',
                 'volume_ratio', 'vwap_gradient', 'quantum_rsi',
                 'neural_macd', 'volume_tsunami', 'stoch_k',
-
-'williams_r', 'cci', 'adx', 'atr'
+                'williams_r', 'cci', 'adx', 'atr'
             ]
             
             for indicator in key_indicators:
@@ -396,7 +393,7 @@ macd_condition = indicators.get('macd_histogram', 0) > 0
                 'pattern_detected': True,
                 'ai_condition': prediction >= 0.75
             }
-            except Exception as e:
+        except Exception as e:
             logger.error(f"Ошибка fallback предсказания: {e}")
             return {'valid': False, 'score': 0.0}
             
@@ -506,6 +503,5 @@ macd_condition = indicators.get('macd_histogram', 0) > 0
             return True
             
         except Exception as e:
-
-logger.error(f"Ошибка валидации сигнала: {e}")
+            logger.error(f"Ошибка валидации сигнала: {e}")
             return False
