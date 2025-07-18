@@ -1,56 +1,49 @@
 """
-Глобальные переменные и настройки
-Стратегия "Quantum Precision V2"
+Глобальные переменные и настройки системы
 """
 
-import os
-from typing import List, Dict, Any
+# Параметры торговых пар и таймфреймов
+TRADING_PAIRS = [
+    "BTCUSDT", "ETHUSDT", "BNBUSDT", "ADAUSDT", "XRPUSDT", "SOLUSDT", "DOGEUSDT"
+]
+TIMEFRAMES = ["1m", "5m", "15m", "30m", "1h", "4h", "1d"]
 
 # Telegram настройки
-BOT_TOKEN = "8177951186:AAH6h4_BEezrjDFIwdDUfiqxPNv-8aCb8u0"
-CHAT_ID = 5331567990
+BOT_TOKEN = "ВАШ_ТОКЕН_ТЕЛЕГРАМ"
+CHAT_ID = 123456789
 
-# Binance WebSocket URL
-BINANCE_WS_URL = "wss://stream.binance.com:9443/ws/"
+# WebSocket Binance
+BINANCE_WS_URL = "wss://stream.binance.com:9443/ws"
 
-# Торговые пары (топ 7)
-TRADING_PAIRS = [
-    "BTCUSDT",
-    "ETHUSDT", 
-    "BNBUSDT",
-    "ADAUSDT",
-    "XRPUSDT",
-    "SOLUSDT",
-    "DOGEUSDT"
-]
-
-# Таймфреймы для анализа
-TIMEFRAMES = [
-    "1m",   # 1 минута
-    "5m",   # 5 минут
-    "15m",  # 15 минут
-    "30m",  # 30 минут
-    "1h",   # 1 час
-    "4h",   # 4 часа
-    "1d"    # 1 день
-]
-
-# Настройки стратегии Quantum Precision V2
-STRATEGY_CONFIG = {
-    "target_accuracy": 0.85,  # 85%+ точность
-    "daily_signals_target": 35,  # 30-35 сигналов в день
-    "update_interval": 10,  # Обновление каждые 10 секунд
-    "signal_threshold": 0.87,  # Порог для AI предсказаний
-    "volume_multiplier": 3.2,  # Множитель объема для детекции
-    "price_change_threshold": 0.004,  # 0.4% изменение цены
-    "vwap_gradient_threshold": 0.002,  # VWAP градиент порог
-    "rsi_upper_limit": 65,  # Верхний лимит RSI
+# База данных
+DB_PATH = "./trading_signals.db"
+DATABASE_CONFIG = {
+    "signals_table": "signals",
+    "market_data_table": "market_data",
+    "performance_table": "performance"
 }
 
-# Настройки индикаторов
+# Стратегия и параметры безопасности
+STRATEGY_CONFIG = {
+    "target_accuracy": 0.85,
+    "daily_signals_target": 35,
+    "update_interval": 10,  # секунд между циклами
+    "signal_threshold": 0.87,
+    "rsi_upper_limit": 65,
+    "vwap_gradient_threshold": 0.002,
+    "volume_multiplier": 2.5  # для Volume Tsunami
+}
+
+SAFETY_LIMITS = {
+    "max_signals_per_hour": 8,
+    "max_daily_signals": 40,
+    "min_signal_interval": 120,  # минимальный интервал между сигналами, секунд
+}
+
+# Конфиг индикаторов
 INDICATORS_CONFIG = {
-    "sma_periods": [20, 50, 200],
-    "ema_periods": [9, 21, 55],
+    "sma_periods": [9, 21, 50, 200],
+    "ema_periods": [9, 21, 50, 200],
     "rsi_period": 14,
     "macd_fast": 12,
     "macd_slow": 26,
@@ -58,169 +51,78 @@ INDICATORS_CONFIG = {
     "bollinger_period": 20,
     "bollinger_std": 2,
     "volume_sma_period": 20,
-    "adx_period": 14,
     "stoch_k": 14,
     "stoch_d": 3,
     "williams_period": 14,
     "cci_period": 20,
-    "mfi_period": 14,
-    "obv_period": 10,
-    "vwap_period": 20,
-    "parabolic_sar": {
-        "acceleration": 0.02,
-        "maximum": 0.2
-    }
+    "adx_period": 14,
+    "parabolic_sar": {"acceleration": 0.02, "maximum": 0.2},
 }
 
-# Веса индикаторов для финального скора
+# Веса для AI модели и анализа
 INDICATOR_WEIGHTS = {
-    "vwap_gradient": 0.25,
-    "volume_tsunami": 0.20,
-    "neural_macd": 0.15,
-    "quantum_rsi": 0.15,
-    "ai_prediction": 0.25
+    "rsi": 0.10,
+    "macd": 0.15,
+    "volume": 0.10,
+    "bollinger": 0.10,
+    "vwap": 0.10,
+    "momentum": 0.10,
+    "volatility": 0.10,
+    "pattern": 0.10,
+    "ai": 0.15
 }
 
-# Настройки AI модели
-AI_MODEL_CONFIG = {
-    "sequence_length": 60,  # Длина последовательности для LSTM
-    "features_count": 20,   # Количество признаков
-    "hidden_size": 128,     # Размер скрытого слоя
-    "num_layers": 2,        # Количество слоев LSTM
-    "dropout": 0.3,         # Dropout для регуляризации
-    "learning_rate": 0.001, # Скорость обучения
-    "batch_size": 32,       # Размер батча
-    "epochs": 100,          # Количество эпох
-    "retrain_interval": 3600  # Переобучение каждые 1 час
-}
-
-# Лимиты безопасности
-SAFETY_LIMITS = {
-    "max_signals_per_hour": 5,
-    "min_signal_interval": 60,  # Минимальный интервал между сигналами (сек)
-    "max_daily_signals": 50,
-    "connection_timeout": 30,
-    "reconnect_attempts": 5,
-    "reconnect_delay": 5
-}
-
-# Пути к файлам (ИСПРАВЛЕНО: относительные пути вместо /app)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR = os.path.join(BASE_DIR, "data")
-DB_PATH = os.path.join(DATA_DIR, "trading_bot.db")
-MODELS_DIR = os.path.join(DATA_DIR, "models")
-LOGS_DIR = os.path.join(DATA_DIR, "logs")
-
-# Создание директорий если их нет (ИСПРАВЛЕНО: с обработкой ошибок)
-try:
-    os.makedirs(DATA_DIR, exist_ok=True)
-    os.makedirs(MODELS_DIR, exist_ok=True)
-    os.makedirs(LOGS_DIR, exist_ok=True)
-except PermissionError as e:
-    print(f"⚠️ Warning: Could not create directories: {e}")
-
-# Настройки базы данных
-DATABASE_CONFIG = {
-    "signals_table": "signals",
-    "market_data_table": "market_data",
-    "performance_table": "performance",
-    "max_records": 100000,  # Максимальное количество записей
-    "cleanup_interval": 86400  # Очистка каждые 24 часа
-}
-
-# Форматы сообщений
+# Форматы сообщений Telegram
 MESSAGE_FORMATS = {
-    "signal": """
-🚀 СИГНАЛ QUANTUM PRECISION V2
-
-📊 Пара: {pair}
-⏰ Таймфрейм: {timeframe}
-🎯 Точность: {accuracy}%
-🕐 Время входа: {entry_time}
-⏱️ Держать: {hold_duration} мин
-
-📈 Детали:
-• VWAP Gradient: {vwap_gradient}
-• Volume Tsunami: {volume_tsunami}
-• Neural MACD: {neural_macd}
-• Quantum RSI: {quantum_rsi}
-• AI Score: {ai_score}
-
-💡 Направление: {direction}
-""",
-    
-    "daily_stats": """
-📊 ДНЕВНАЯ СТАТИСТИКА
-
-🎯 Сигналов сегодня: {signals_count}
-✅ Успешных: {successful_signals}
-📈 Точность: {accuracy}%
-💰 Средняя прибыль: {avg_profit}%
-
-🔥 Лучшие пары:
-{best_pairs}
-""",
-    
-    "error": """
-❌ ОШИБКА СИСТЕМЫ
-
-🔧 Модуль: {module}
-📝 Описание: {error}
-🕐 Время: {timestamp}
-""",
-    
-    "status": """
-🤖 СТАТУС БОТА
-
-🔄 Работает: {uptime}
-📊 Анализируется: {pairs_count} пар
-⏰ Таймфреймы: {timeframes_count}
-🎯 Точность: {current_accuracy}%
-📈 Сигналов за час: {signals_per_hour}
-"""
+    "signal": (
+        "📊 <b>НОВЫЙ СИГНАЛ</b>\n"
+        "Пара: <b>{pair}</b> | Таймфрейм: <b>{timeframe}</b>\n"
+        "Точность: <b>{accuracy}%</b> | Вход: <b>{entry_time}</b>\n"
+        "Держать: <b>{hold_duration} мин</b>\n"
+        "VWAP Gradient: {vwap_gradient:.4f}\n"
+        "Volume Tsunami: {volume_tsunami:.2f}\n"
+        "Neural MACD: {neural_macd:.3f}\n"
+        "Quantum RSI: {quantum_rsi:.1f}\n"
+        "AI Score: {ai_score:.1f}\n"
+        "Направление: <b>{direction}</b>"
+    ),
+    "error": (
+        "❌ <b>Ошибка в модуле: {module}</b>\n"
+        "<i>{error}</i>\n"
+        "Время: {timestamp}"
+    ),
+    "daily_stats": (
+        "📊 <b>Дневная статистика сигналов</b>\n"
+        "Всего сигналов: <b>{signals_count}</b>\n"
+        "Успешных: <b>{successful_signals}</b>\n"
+        "Точность: <b>{accuracy:.1f}%</b>\n"
+        "Средний профит: <b>{avg_profit:.2f}</b>\n"
+        "<b>Лучшие пары:</b>\n"
+        "{best_pairs}"
+    ),
+    "status": (
+        "🟢 <b>Статус бота</b>\n"
+        "Аптайм: <b>{uptime}</b>\n"
+        "Пары: <b>{pairs_count}</b>\n"
+        "Таймфреймы: <b>{timeframes_count}</b>\n"
+        "Текущая точность: <b>{current_accuracy:.1f}%</b>\n"
+        "Сигналов/час: <b>{signals_per_hour}</b>"
+    )
 }
 
-# Настройки логирования
-LOGGING_CONFIG = {
-    "level": "INFO",
-    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    "max_file_size": 10 * 1024 * 1024,  # 10 MB
-    "backup_count": 5,
-    "log_files": {
-        "main": os.path.join(LOGS_DIR, "trading_bot.log"),  # ИСПРАВЛЕНО
-        "signals": os.path.join(LOGS_DIR, "signals.log"),    # ИСПРАВЛЕНО
-        "errors": os.path.join(LOGS_DIR, "errors.log"),      # ИСПРАВЛЕНО
-        "performance": os.path.join(LOGS_DIR, "performance.log")  # ИСПРАВЛЕНО
-    }
+# AI модель (стартовые веса для быстрой инициализации)
+AI_MODEL_CONFIG = {
+    "learning_rate": 0.01,
+    "epochs": 10,
+    "batch_size": 32
 }
 
-# Переменные состояния (глобальные)
-trading_active = False
-bot_started = False
-current_signals = {}
+# Глобальные переменные для статистики и состояния
 performance_stats = {
     "total_signals": 0,
-    "successful_signals": 0,
-    "failed_signals": 0,
-    "accuracy": 0.0,
     "daily_signals": 0,
     "hourly_signals": 0
 }
 
-# Кэш данных рынка
-market_data_cache = {}
-indicators_cache = {}
-ai_predictions_cache = {}
-
-# Время последнего обновления
-last_update_time = None
-last_signal_time = None
-last_cleanup_time = None
-
-# Состояние подключений
-connection_status = {
-    "binance_ws": False,
-    "telegram": False,
-    "database": False,
-    "ai_model": False
-}
+trading_active = False
+bot_controller = None
