@@ -104,16 +104,20 @@ SAFETY_LIMITS = {
     "reconnect_delay": 5
 }
 
-# Пути к файлам
-DATA_DIR = "/app/data"
-DB_PATH = f"{DATA_DIR}/trading_bot.db"
-MODELS_DIR = f"{DATA_DIR}/models"
-LOGS_DIR = f"{DATA_DIR}/logs"
+# Пути к файлам (ИСПРАВЛЕНО: относительные пути вместо /app)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+DB_PATH = os.path.join(DATA_DIR, "trading_bot.db")
+MODELS_DIR = os.path.join(DATA_DIR, "models")
+LOGS_DIR = os.path.join(DATA_DIR, "logs")
 
-# Создание директорий если их нет
-os.makedirs(DATA_DIR, exist_ok=True)
-os.makedirs(MODELS_DIR, exist_ok=True)
-os.makedirs(LOGS_DIR, exist_ok=True)
+# Создание директорий если их нет (ИСПРАВЛЕНО: с обработкой ошибок)
+try:
+    os.makedirs(DATA_DIR, exist_ok=True)
+    os.makedirs(MODELS_DIR, exist_ok=True)
+    os.makedirs(LOGS_DIR, exist_ok=True)
+except PermissionError as e:
+    print(f"⚠️ Warning: Could not create directories: {e}")
 
 # Настройки базы данных
 DATABASE_CONFIG = {
@@ -183,10 +187,10 @@ LOGGING_CONFIG = {
     "max_file_size": 10 * 1024 * 1024,  # 10 MB
     "backup_count": 5,
     "log_files": {
-        "main": "trading_bot.log",
-        "signals": "signals.log",
-        "errors": "errors.log",
-        "performance": "performance.log"
+        "main": os.path.join(LOGS_DIR, "trading_bot.log"),  # ИСПРАВЛЕНО
+        "signals": os.path.join(LOGS_DIR, "signals.log"),    # ИСПРАВЛЕНО
+        "errors": os.path.join(LOGS_DIR, "errors.log"),      # ИСПРАВЛЕНО
+        "performance": os.path.join(LOGS_DIR, "performance.log")  # ИСПРАВЛЕНО
     }
 }
 
