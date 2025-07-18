@@ -14,10 +14,10 @@ from websocket import BinanceWebSocket
 from signal_analyzer import SignalAnalyzer
 from ai_model import AIPredictor
 
-logger = logging.getLogger(__name__)  # Исправлено: __name__
+logger = logging.getLogger(__name__)
 
 class TradingCore:
-    def __init__(self, telegram_bot, database):  # Исправлено: __init__
+    def __init__(self, telegram_bot, database):
         self.telegram = telegram_bot
         self.database = database
         
@@ -227,7 +227,7 @@ class TradingCore:
                     logger.info("🤖 AI модель переобучена и сохранена")
                     
                 except Exception as e:
-                    logger.error(f"Ошибка переобучения AI: {e}")  # Исправлено: правильные скобки
+                    logger.error(f"Ошибка переобучения AI: {e}")
                     await asyncio.sleep(300)  # 5 минут пауза при ошибке
                     
         except Exception as e:
