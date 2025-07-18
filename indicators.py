@@ -11,10 +11,10 @@ from datetime import datetime
 
 from globals import INDICATORS_CONFIG, STRATEGY_CONFIG
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 class TechnicalIndicators:
-    def init(self):
+    def __init__(self):
         self.config = INDICATORS_CONFIG
         self.strategy_config = STRATEGY_CONFIG
         
@@ -105,8 +105,7 @@ class TechnicalIndicators:
             
             macd_line = ema_fast - ema_slow
             macd_signal = macd_line.ewm(span=signal).mean()
-
-macd_histogram = macd_line - macd_signal
+            macd_histogram = macd_line - macd_signal
             
             return {
                 'macd': macd_line.iloc[-1],
@@ -207,8 +206,7 @@ macd_histogram = macd_line - macd_signal
             return result
             
         except Exception as e:
-
-logger.error(f"Ошибка расчета momentum индикаторов: {e}")
+            logger.error(f"Ошибка расчета momentum индикаторов: {e}")
             return {}
             
     def _calculate_volatility_indicators(self, data: pd.DataFrame) -> Dict[str, Any]:
@@ -414,8 +412,7 @@ logger.error(f"Ошибка расчета momentum индикаторов: {e}"
         
     def _calculate_williams_r(self, data: pd.DataFrame) -> pd.Series:
         """Расчет Williams %R"""
-
-period = self.config['williams_period']
+        period = self.config['williams_period']
         
         high_n = data['high'].rolling(window=period).max()
         low_n = data['low'].rolling(window=period).min()
@@ -515,7 +512,7 @@ period = self.config['williams_period']
                     
         return sar
 
-def _calculate_rsi_divergence(self, data: pd.DataFrame, rsi: pd.Series) -> float:
+    def _calculate_rsi_divergence(self, data: pd.DataFrame, rsi: pd.Series) -> float:
         """Расчет дивергенции RSI"""
         try:
             # Упрощенный расчет дивергенции
