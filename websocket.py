@@ -15,10 +15,10 @@ from urllib.parse import urlencode
 
 from globals import BINANCE_WS_URL, TRADING_PAIRS, TIMEFRAMES, SAFETY_LIMITS
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)  # Исправлено: __name__
 
 class BinanceWebSocket:
-    def init(self):
+    def __init__(self):  # Исправлено: __init__
         self.ws_url = BINANCE_WS_URL
         self.pairs = TRADING_PAIRS
         self.timeframes = TIMEFRAMES
@@ -112,8 +112,7 @@ class BinanceWebSocket:
                         
                         # Генерация OHLC данных
                         open_price = price
-
-high_price = price * (1 + abs(random.uniform(0, 0.02)))
+                        high_price = price * (1 + abs(random.uniform(0, 0.02)))  # ИСПРАВЛЕНО: убрана лишняя скобка
                         low_price = price * (1 - abs(random.uniform(0, 0.02)))
                         close_price = price * (1 + random.uniform(-0.01, 0.01))
                         volume = random.uniform(1000, 10000)
@@ -207,8 +206,7 @@ high_price = price * (1 + abs(random.uniform(0, 0.02)))
         try:
             # Разделение потоков на группы
             chunk_size = 100
-
-stream_chunks = [streams[i:i + chunk_size] for i in range(0, len(streams), chunk_size)]
+            stream_chunks = [streams[i:i + chunk_size] for i in range(0, len(streams), chunk_size)]
             
             for i, chunk in enumerate(stream_chunks):
                 ws_url = f"wss://stream.binance.com:9443/ws/{'/'.join(chunk)}"
@@ -296,8 +294,7 @@ stream_chunks = [streams[i:i + chunk_size] for i in range(0, len(streams), chunk
             await self._reconnect_connection(conn_name)
             
         except Exception as e:
-
-logger.error(f"Ошибка обработки соединения {conn_name}: {e}")
+            logger.error(f"Ошибка обработки соединения {conn_name}: {e}")
             await self._reconnect_connection(conn_name)
             
     async def _process_message(self, data: Dict[str, Any]):
@@ -395,8 +392,7 @@ logger.error(f"Ошибка обработки соединения {conn_name}:
             logger.error(f"❌ Не удалось переподключиться: {conn_name}")
             
         except Exception as e:
-
-logger.error(f"Ошибка переподключения: {e}")
+            logger.error(f"Ошибка переподключения: {e}")
             
     def get_market_data(self) -> Dict[str, Dict[str, pd.DataFrame]]:
         """Получение рыночных данных"""
