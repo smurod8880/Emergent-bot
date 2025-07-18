@@ -12,10 +12,10 @@ import json
 
 from globals import AI_MODEL_CONFIG, STRATEGY_CONFIG
 
-logger = logging.getLogger(name)
+logger = logging.getLogger(__name__)
 
 class AIPredictor:
-    def init(self):
+    def __init__(self):
         self.config = AI_MODEL_CONFIG
         self.strategy_config = STRATEGY_CONFIG
         
@@ -110,8 +110,7 @@ class AIPredictor:
                 return value / 100.0
             elif index == 6:  # MACD
                 return np.tanh(value)
-
-elif index == 7:  # MACD Histogram
+            elif index == 7:  # MACD Histogram
                 return np.tanh(value)
             elif index == 8:  # BB Position
                 return max(0.0, min(1.0, value))
@@ -218,7 +217,7 @@ elif index == 7:  # MACD Histogram
         except Exception as e:
             return 0.5
 
-def _get_historical_correction(self, pair: str, timeframe: str) -> float:
+    def _get_historical_correction(self, pair: str, timeframe: str) -> float:
         """Коррекция на основе исторических данных"""
         try:
             key = f"{pair}_{timeframe}"
@@ -327,8 +326,7 @@ def _get_historical_correction(self, pair: str, timeframe: str) -> float:
             if not self.performance_history:
                 return {
                     'total_predictions': 0,
-
-'average_accuracy': 0.0,
+                    'average_accuracy': 0.0,
                     'average_error': 0.0
                 }
                 
