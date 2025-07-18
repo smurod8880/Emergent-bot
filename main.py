@@ -26,10 +26,10 @@ logging.basicConfig(
         logging.StreamHandler(sys.stdout)
     ]
 )
-logger = logging.getLogger(__name__)  # Исправлено: __name__
+logger = logging.getLogger(__name__)
 
 class TradingBot:
-    def __init__(self):  # Исправлено: __init__
+    def __init__(self):
         self.core = None
         self.telegram = None
         self.database = None
@@ -141,5 +141,5 @@ async def main():
     finally:
         await bot.shutdown()
 
-if __name__ == "__main__":  # Исправлено: __name__
+if __name__ == "__main__":
     asyncio.run(main())
